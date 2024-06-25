@@ -131,8 +131,7 @@ def deletar_veiculo(request, id):
         veiculo.delete()
     except:
         return redirect(reverse('cliente'))
-
-    return HttpResponse('Deletado com sucesso')
+    return redirect(reverse('cliente'))
 
 
 def inserir_veiculo(request, id_cliente):
