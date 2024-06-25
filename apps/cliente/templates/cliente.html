@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block "head" %}
+
+    <link rel="stylesheet" href="{% static 'cliente/css/cliente.css' %}">
+
+{% endblock %}
+
+{% block "dashboard" %}
+
+<div class="container">
+    <div class="row">
+        <div onclick="exibir_form('adicionar')" class="col-md card-dashboard">
+            <p class="text-card">Adicionar clientes</p>
+        </div>
+
+        <div onclick="exibir_form('atualizar')" class="col-md card-dashboard">
+            <p class="text-card">Atualizar cliente</p>
+        </div>
+    </div>
+
+    <div id="add_cliente" class="add-cliente">   
+        <form action="{% url 'cliente' %}" method="POST">
+            {% csrf_token %}
+            <div class="col-md">
+                <p>Nome:</p>
+                <input type="text" class="form-control" placeholder="Primeiro nome" name="nome" value="{{ nome }}">
+            </div>
+            <div class="col-md">
+                <p>Sobrenome:</p>
+                <input type="text" class="form-control" placeholder="Sobrenome" name="sobrenome" value="{{ sobrenome }}">
+            </div>
+            <div class="col-md">
+                <p>E-mail:</p>
+                <input type="email" class="form-control" placeholder="nome@email.com" name="email" value="{{ email }}">
+            </div>
+            <div class="col-md">
+                <p>CPF:</p>
+                <input type="text" class="form-control" placeholder="___.___.___-__" name="cpf" value="{{ cpf }}">
+                <p class="hidden {{ aviso_cpf }}">O CPF informado já está cadastrado em nosso sistema.</p>
+            </div>
+            <hr style="background-color:gray;">
+            <div class="add-carros">
+                <h3>Veiculos</h3>
+                <span class="btn-add-carros" onclick="add_carro()">+ Adicionar um carro</span>
+                <div id="form-carro">
+                    {% for veiculo, placa, ano in veiculos %}
+                    <br> 
+                    <div class="row"> 
+                        <div class="col-md"> 
+                            <input type="text" name="carros" placeholder="carro" class="form-control" value="{{ veiculo }}"> 
+                        </div>
+                        <div class="col-md"> 
+                            <input type="text" name="placas" placeholder="Placa" class="form-control" value="{{ placa }}">
+                            <p class="hidden {{ aviso_placa }}">A Placa informado já está cadastrado em nosso sistema.</p> 
+                        </div>
+                        <div class="col-md"> 
+                            <input type="number" name="ano" placeholder="Ano" class="form-control" value="{{ ano }}"> 
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <br>
+            <input type="submit" value="Cadastrar" class="btn-principal">
+        </form>
+    </div>
+    <div id="att_cliente">
+        <br>
+        <select onchange="cliente_dados()" class="form-control" name="select-cliente" id="select-cliente" aria-label="Escolha uma opção">
+            <option value="-1"> -- Selecione uma opção -- </option>
+            {% for cliente in clientes %}
+            <option value="{{cliente.id_pessoa}}">{{cliente.nm_pessoa}} {{cliente.nm_sbrnome}}</option>
+            {% endfor %}
+        </select>
+        <br>
+        <hr>
+
+        <div id="form-atualiza-cliente">
+            <div class="dados_cliente">
+               
+            </div>
+            <hr style="background-color:gray;">
+            <hr>
+            <div class="info-dados">
+                <h3>Veiculo</h3>
+                <button type="button" onclick="Inserir_novo_veiculo()" class="btn btn-success">Adicionar Veiculos</button>
+            </div>
+            <div id="veiculo">
+            </div>
+        </div> 
+    </div>
+</div>
+
+<script src="{% static 'cliente/js/cliente.js' %}"></script>
+{% endblock %}
