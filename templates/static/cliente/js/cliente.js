@@ -41,11 +41,13 @@ function cliente_dados() {
             return result.json()
         }).then(function(data) {
             //id_pessoa ser diferente de none, retorna os valores
+            console.log(data)
 
             document.getElementById("form-atualiza-cliente").style.display = "block"
 
             cliente = document.querySelector('.dados_cliente')
             cliente.innerHTML = ""
+            
             cliente.innerHTML += '<form action="/cliente/atualizar_pessoa/'+data["cliente"]['id_cliente']+'" class="atualizar_pessoa" method="POST">' +
             '<input type="hidden" name="csrfmiddlewaretoken" value="'+csrf_token+'">' +
             '<div class="col-md">'+
@@ -71,32 +73,43 @@ function cliente_dados() {
             '<br><input type="submit" class="btn btn-success" value="Salvar Alteração"> ' + 
             '</form>'
             
-            veiculos = document.getElementById("veiculo")
+            veiculo = document.getElementById("veiculo")
             veiculo.innerHTML = ""
-
-            for(i=0; i<data["veiculo"].length; i++) {
-                veiculo.innerHTML += '<form action="/cliente/atualizar_veiculo/'+ data['veiculo'][i]['id_veiculo']+'" method="POST">' +
+            
+            
+            if (document.getElementById("atualizar-veiculo") == null) {
+                veiculo.innerHTML += '<form id="atualizar-veiculo" method="POST">' +
                 '<input type="hidden" name="csrfmiddlewaretoken" value="'+csrf_token+'">' +
-                '<div class="row"> ' +
-                    '<div class="col-md">' + 
-                    '<input type="text" name="veiculo" placeholder="veiculo" class="form-control" ' +
-                        'value="'+ data['veiculo'][i]['fields']['nm_veiculo'] + '" > ' + 
-                    '</div>' +
-                    '<div class="col-md"> ' +
-                    '<input type="text" name="placa" placeholder="Placa" class="form-control" ' +
-                        'value="'+ data['veiculo'][i]['fields']['nr_placa'] + '" > ' + 
-                        '<p class="hidden {{ aviso_placa }}">A Placa informado já está cadastrado em nosso sistema.</p>' + 
-                    '</div>' +
-                    '<div class="col-md"> ' +
-                    '<input type="number" name="ano" placeholder="Ano" class="form-control" ' +
-                        'value="'+ data['veiculo'][i]['fields']['nr_ano'] +'" >' + 
-                    '</div>' +
-                    '<input type="submit" class="btn btn-success" value="Salvar Alteração"> ' + 
-                    '<a class="btn btn-danger" href="/cliente/deletar_veiculo/' +data['veiculo'][i]['id_veiculo'] +'">Excluir</a>' +
-                '</div>' + 
-                '</form>' +
-                '<br>'
-            }    
+                '</form>'
+
+                form_veiculo = document.getElementById("atualizar-veiculo")  
+                console.log(form_veiculo)
+                for(i=0; i<data["veiculo"].length; i++) {
+                    form_veiculo.innerHTML += 
+                    '<div class="row"> ' +
+                        '<input type="hidden" name="id_veiculo" value="'+data['veiculo'][i]['id_veiculo']+'">' +
+                        '<div class="col-md">' + 
+                        '<input type="text" name="veiculo" placeholder="veiculo" class="form-control" ' +
+                            'value="'+ data['veiculo'][i]['fields']['nm_veiculo'] + '" > ' + 
+                        '</div>' +
+                        '<div class="col-md"> ' +
+                        '<input type="text" name="placa" placeholder="Placa" class="form-control" ' +
+                            'value="'+ data['veiculo'][i]['fields']['nr_placa'] + '" > ' + 
+                            '<p class="hidden {{ aviso_placa }}">A Placa informado já está cadastrado em nosso sistema.</p>' + 
+                        '</div>' +
+                        '<div class="col-md"> ' +
+                        '<input type="number" name="ano" placeholder="Ano" class="form-control" ' +
+                            'value="'+ data['veiculo'][i]['fields']['nr_ano'] +'" >' + 
+                        '</div>' +
+                        '<input type="submit" class="btn btn-success" value="Salvar Alteração"> ' + 
+                        '<a class="btn btn-danger" href="/cliente/deletar_veiculo/' +data['veiculo'][i]['id_veiculo'] +'">Excluir</a>' +
+                    '</div>' + 
+                    '</form>' +
+                    '<br>'
+                }
+
+            }
+                
         })
     }
     else {
@@ -109,27 +122,46 @@ function Inserir_novo_veiculo() {
     veiculo = document.getElementById("veiculo")
     cliente = document.getElementById("select-cliente")
 
-
-    veiculo.innerHTML += '<form action="/cliente/inserir_veiculo/'+ cliente.value +'" method="POST">' +
-    '<input type="hidden" name="csrfmiddlewaretoken" value="'+ csrf_token +'">' +
-    '<div class="row"> ' +
-        '<div class="col-md">' + 
-        '<input type="text" name="veiculo" placeholder="veiculo" class="form-control" ' +
-            'value="" > ' + 
-        '</div>' +
-        '<div class="col-md"> ' +
-        '<input type="text" name="placa" placeholder="Placa" class="form-control" ' +
-            'value="" > ' + 
-            '<p class="hidden {{ aviso_placa }}">A Placa informado já está cadastrado em nosso sistema.</p>' + 
-        '</div>' +
-        '<div class="col-md"> ' +
-        '<input type="number" name="ano" placeholder="Ano" class="form-control" ' +
-            'value="" >' + 
-        '</div>' +
-        '<input type="submit" class="btn btn-success" value="Salvar Alteração"> ' + 
-        '<a class="btn btn-danger" href="/cliente/deletar_veiculo/">Excluir</a>' +
-    '</div>' + 
-    '</form>' +
-    '<br>'
-
+    //Adicionando um formulario para novos veiculos
+    if (document.getElementById("inserir-veiculo") == null) {
+        veiculo.innerHTML += '<form id="inserir-veiculo" method="POST">' +
+        '<input type="hidden" name="csrfmiddlewaretoken" value="'+ csrf_token +'">' +
+        '<div class="row"> ' +
+            '<div class="col-md">' + 
+            '<input type="text" name="veiculo" placeholder="veiculo" class="form-control" ' +
+                'value="" > ' + 
+            '</div>' +
+            '<div class="col-md"> ' +
+            '<input type="text" name="placa" placeholder="Placa" class="form-control" ' +
+                'value="" > ' + 
+                '<p class="hidden {{ aviso_placa }}">A Placa informado já está cadastrado em nosso sistema.</p>' + 
+            '</div>' +
+            '<div class="col-md"> ' +
+            '<input type="number" name="ano" placeholder="Ano" class="form-control" ' +
+                'value="" >' + 
+            '</div>' +
+            '<a class="btn btn-danger" href="/cliente/deletar_veiculo/">Excluir</a>' +
+        '</div><br>' +
+        '</form>' 
+        '<br>' 
+    } else {
+        // Se o formulario ja existe, adicionar apenas os campos
+        form_veiculo = document.getElementById("inserir-veiculo")
+        form_veiculo.innerHTML += '<div class="row"> ' +
+            '<div class="col-md">' + 
+            '<input type="text" name="veiculo" placeholder="veiculo" class="form-control veiculo" ' +
+                'value="" > ' + 
+            '</div>' +
+            '<div class="col-md"> ' +
+            '<input type="text" name="placa" placeholder="Placa" class="form-control" ' +
+                'value="" > ' + 
+                '<p class="hidden {{ aviso_placa }}">A Placa informado já está cadastrado em nosso sistema.</p>' + 
+            '</div>' +
+            '<div class="col-md"> ' +
+            '<input type="number" name="ano" placeholder="Ano" class="form-control" ' +
+                'value="" >' + 
+            '</div>' + 
+            '<a class="btn btn-danger" href="/cliente/deletar_veiculo/">Excluir</a>' +
+        '</div><br>'
+    }
 }

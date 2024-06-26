@@ -8,5 +8,5 @@ urlpatterns = [
          atualizar_veiculo, name='atualizar_veiculo'),
     path('deletar_veiculo/<int:id>', deletar_veiculo, name='deletar_veiculo'),
     path('atualizar_pessoa/<int:id>', atualizar_pessoa, name='atualizar_pessoa'),
-    path('inserir_veiculo/<int:id_cliente>', inserir_veiculo, name='inserir_veiculo')
+        path('inserir_veiculo/<int:id_cliente>', inserir_veiculo, name='inserir_veiculo')
 ]
