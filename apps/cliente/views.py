@@ -83,6 +83,7 @@ def view_cliente(request):
         dados_cliente = {'id_cliente': dados_cliente['pk'],
                          'fields': dados_cliente['fields']}
     except IndexError:
+        
         dados_cliente = {'id_pessoa': 'none'}
 
     # Carrega os veiculos assodiado ao cliente
