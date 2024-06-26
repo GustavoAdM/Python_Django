@@ -4,7 +4,6 @@ from django.core.exceptions import ValidationError
 from django.core.serializers import serialize
 from .models import Cliente, Veiculo
 from json import loads
-from django.views.decorators.csrf import csrf_exempt
 from django.urls import reverse
 from django.shortcuts import redirect
 
