@@ -10,6 +10,7 @@
 {% block "dashboard" %}
 
 <div class="container">
+    <div id="popup" class="popup"></div>
     <div class="row">
         <div onclick="exibir_form('adicionar')" class="col-md card-dashboard">
             <p class="text-card">Adicionar clientes</p>
@@ -21,50 +22,46 @@
     </div>
 
     <div id="add_cliente" class="add-cliente">   
-        <form action="{% url 'cliente' %}" method="POST">
+        <form class="novo-cadastro" method="POST">
             {% csrf_token %}
             <div class="col-md">
                 <p>Nome:</p>
-                <input type="text" class="form-control" placeholder="Primeiro nome" name="nome" value="{{ nome }}">
+                <input type="text" class="form-control" placeholder="Primeiro nome" name="nome" id="nome_cliente" value="">
             </div>
             <div class="col-md">
                 <p>Sobrenome:</p>
-                <input type="text" class="form-control" placeholder="Sobrenome" name="sobrenome" value="{{ sobrenome }}">
+                <input type="text" class="form-control" placeholder="Sobrenome" name="sobrenome" id="sbrnome_cliente" value="">
             </div>
             <div class="col-md">
                 <p>E-mail:</p>
-                <input type="email" class="form-control" placeholder="nome@email.com" name="email" value="{{ email }}">
+                <input type="email" class="form-control" placeholder="nome@email.com" name="email" id="email_cliente" value="">
             </div>
             <div class="col-md">
                 <p>CPF:</p>
-                <input type="text" class="form-control" placeholder="___.___.___-__" name="cpf" value="{{ cpf }}">
-                <p class="hidden {{ aviso_cpf }}">O CPF informado já está cadastrado em nosso sistema.</p>
+                <input type="text" class="form-control" placeholder="___.___.___-__" name="cpf" id="cpf_cliente" value="">
             </div>
             <hr style="background-color:gray;">
             <div class="add-carros">
                 <h3>Veiculos</h3>
                 <span class="btn-add-carros" onclick="add_carro()">+ Adicionar um carro</span>
                 <div id="form-carro">
-                    {% for veiculo, placa, ano in veiculos %}
                     <br> 
                     <div class="row"> 
                         <div class="col-md"> 
-                            <input type="text" name="carros" placeholder="carro" class="form-control" value="{{ veiculo }}"> 
+                            <input type="text" name="carros" id="carros" placeholder="carro" class="form-control" value=""> 
                         </div>
                         <div class="col-md"> 
-                            <input type="text" name="placas" placeholder="Placa" class="form-control" value="{{ placa }}">
-                            <p class="hidden {{ aviso_placa }}">A Placa informado já está cadastrado em nosso sistema.</p> 
+                            <input type="text" name="placas" id="placas" placeholder="Placa" class="form-control" value="">
                         </div>
                         <div class="col-md"> 
-                            <input type="number" name="ano" placeholder="Ano" class="form-control" value="{{ ano }}"> 
+                            <input type="number" name="ano" id="ano" placeholder="Ano" class="form-control" value=""> 
                         </div>
                     </div>
-                    {% endfor %}
                 </div>
             </div>
             <br>
-            <input type="submit" value="Cadastrar" class="btn-principal">
         </form>
+        <input type="submit" onclick="novo_cadastro()" value="Cadastrar" class="btn-principal">
     </div>
     <div id="att_cliente">
         <br>
@@ -87,8 +84,13 @@
                 <h3>Veiculo</h3>
                 <button type="button" onclick="Inserir_novo_veiculo()" class="btn btn-success">Adicionar Veiculos</button>
             </div>
-            <div id="veiculo">
+            <div id="container-veiculo">
+                <div id="veiculo">
+                    
+                </div>
+                <input type="submit" onclick="Salvar_veiculo()" class="btn btn-success" value="Salvar Alteração">
             </div>
+
         </div> 
     </div>
 </div>

@@ -1,9 +1,60 @@
+var csrf_token = document.querySelector("[name=csrfmiddlewaretoken]").value
+
+function novo_cadastro() {
+    form_cadastro = document.querySelector(".novo-cadastro")
+
+    nome_cliente = form_cadastro.querySelector("#nome_cliente").value
+    sbrnome_cliente = form_cadastro.querySelector("#sbrnome_cliente").value
+    email_cliente = form_cadastro.querySelector("#email_cliente").value
+    cpf_cliente = form_cadastro.querySelector("#cpf_cliente").value
+
+    nome_veiculo = form_cadastro.querySelectorAll("#carros")
+    placa_veiculo = form_cadastro.querySelectorAll("#placas")
+    ano_veiculo = form_cadastro.querySelectorAll("#ano")
+
+    veiculo = {}//Lista vazia
+    for(i=0; i < placa_veiculo.length; i++) {
+        //Pega todos os campos e adiciona os veiculos criando:  veiculo{0: {dados do veiculo}}
+        veiculo[i] = {
+            nome_veiculo: nome_veiculo[i].value,
+            placa_veiculo: placa_veiculo[i].value,
+            ano_veiculo: ano_veiculo[i].value
+        }
+    }
+
+    data = {
+        nome: nome_cliente,
+        sobrenome: sbrnome_cliente,
+        email: email_cliente,
+        cpf: cpf_cliente,
+        veiculo
+    }
+
+    fetch('/cliente/',{
+        method: "POST",
+        headers: {
+            "X-CSRFToken": csrf_token 
+        },
+        body: JSON.stringify(data)
+    } ).then(function(result) {
+        return result   .json()
+    }).then(function(data) {
+        let popup = document.getElementById("popup");
+        popup.className = "popup show";
+        popup.innerHTML += data["INFO"]
+        setTimeout(function(){ 
+            popup.className = popup.className.replace("show", "");
+            popup.innerHTML = "" 
+        }, 5000);
+    })
+}
+
 function add_carro(){
     container = document.getElementById("form-carro")
     html = '<br> <div class="row">' +
-        '<div class="col-md"> <input type="text" name="carros" placeholder="carro" class="form-control"> </div>' +
-        '<div class="col-md"> <input type="text" name="placas" placeholder="Placa" class="form-control"> </div>' +
-        '<div class="col-md"> <input type="number" name="ano" placeholder="Ano" class="form-control"> </div>' +
+        '<div class="col-md"> <input type="text" name="carros" id="carros" placeholder="carro" class="form-control"> </div>' +
+        '<div class="col-md"> <input type="text" name="placas" id="placas" placeholder="Placa" class="form-control"> </div>' +
+        '<div class="col-md"> <input type="number" name="ano" id="ano" placeholder="Ano" class="form-control"> </div>' +
         '</div>'
     
     container.innerHTML += html;
@@ -25,7 +76,6 @@ function exibir_form(acao) {
 
 function cliente_dados() {
     cliente = document.getElementById("select-cliente")
-    csrf_token = document.querySelector("[name=csrfmiddlewaretoken]").value
 
     data = new FormData()
     data.append('id_cliente', cliente.value)
@@ -41,8 +91,6 @@ function cliente_dados() {
             return result.json()
         }).then(function(data) {
             //id_pessoa ser diferente de none, retorna os valores
-            console.log(data)
-
             document.getElementById("form-atualiza-cliente").style.display = "block"
 
             cliente = document.querySelector('.dados_cliente')
@@ -83,33 +131,29 @@ function cliente_dados() {
                 '</form>'
 
                 form_veiculo = document.getElementById("atualizar-veiculo")  
-                console.log(form_veiculo)
                 for(i=0; i<data["veiculo"].length; i++) {
                     form_veiculo.innerHTML += 
                     '<div class="row"> ' +
-                        '<input type="hidden" name="id_veiculo" value="'+data['veiculo'][i]['id_veiculo']+'">' +
+                        '<input type="hidden" name="id_veiculo" id="id_veiculo" value="'+data['veiculo'][i]['id_veiculo']+'">' +
                         '<div class="col-md">' + 
-                        '<input type="text" name="veiculo" placeholder="veiculo" class="form-control" ' +
+                        '<input type="text" name="veiculo" id="nm_veiculo" placeholder="veiculo" class="form-control" ' +
                             'value="'+ data['veiculo'][i]['fields']['nm_veiculo'] + '" > ' + 
                         '</div>' +
                         '<div class="col-md"> ' +
-                        '<input type="text" name="placa" placeholder="Placa" class="form-control" ' +
+                        '<input type="text" name="placa" placeholder="Placa" id="nr_placa" class="form-control" ' +
                             'value="'+ data['veiculo'][i]['fields']['nr_placa'] + '" > ' + 
                             '<p class="hidden {{ aviso_placa }}">A Placa informado já está cadastrado em nosso sistema.</p>' + 
                         '</div>' +
                         '<div class="col-md"> ' +
-                        '<input type="number" name="ano" placeholder="Ano" class="form-control" ' +
+                        '<input type="number" name="ano" placeholder="Ano" id="nr_ano" class="form-control" ' +
                             'value="'+ data['veiculo'][i]['fields']['nr_ano'] +'" >' + 
                         '</div>' +
-                        '<input type="submit" class="btn btn-success" value="Salvar Alteração"> ' + 
                         '<a class="btn btn-danger" href="/cliente/deletar_veiculo/' +data['veiculo'][i]['id_veiculo'] +'">Excluir</a>' +
                     '</div>' + 
                     '</form>' +
                     '<br>'
                 }
-
-            }
-                
+            }    
         })
     }
     else {
@@ -128,16 +172,15 @@ function Inserir_novo_veiculo() {
         '<input type="hidden" name="csrfmiddlewaretoken" value="'+ csrf_token +'">' +
         '<div class="row"> ' +
             '<div class="col-md">' + 
-            '<input type="text" name="veiculo" placeholder="veiculo" class="form-control" ' +
+            '<input type="text" name="veiculo" id="nm_veiculo" placeholder="veiculo" class="form-control" ' +
                 'value="" > ' + 
             '</div>' +
             '<div class="col-md"> ' +
-            '<input type="text" name="placa" placeholder="Placa" class="form-control" ' +
+            '<input type="text" name="placa" id="nr_placa" placeholder="Placa" class="form-control" ' +
                 'value="" > ' + 
-                '<p class="hidden {{ aviso_placa }}">A Placa informado já está cadastrado em nosso sistema.</p>' + 
             '</div>' +
             '<div class="col-md"> ' +
-            '<input type="number" name="ano" placeholder="Ano" class="form-control" ' +
+            '<input type="number" name="ano" id="nr_ano" placeholder="Ano" class="form-control"' +
                 'value="" >' + 
             '</div>' +
             '<a class="btn btn-danger" href="/cliente/deletar_veiculo/">Excluir</a>' +
@@ -149,19 +192,104 @@ function Inserir_novo_veiculo() {
         form_veiculo = document.getElementById("inserir-veiculo")
         form_veiculo.innerHTML += '<div class="row"> ' +
             '<div class="col-md">' + 
-            '<input type="text" name="veiculo" placeholder="veiculo" class="form-control veiculo" ' +
+            '<input type="text" name="veiculo" id="nm_veiculo" placeholder="veiculo" class="form-control" ' +
                 'value="" > ' + 
             '</div>' +
             '<div class="col-md"> ' +
-            '<input type="text" name="placa" placeholder="Placa" class="form-control" ' +
+            '<input type="text" name="placa" id="nr_placa" placeholder="Placa" class="form-control" ' +
                 'value="" > ' + 
-                '<p class="hidden {{ aviso_placa }}">A Placa informado já está cadastrado em nosso sistema.</p>' + 
             '</div>' +
             '<div class="col-md"> ' +
-            '<input type="number" name="ano" placeholder="Ano" class="form-control" ' +
+            '<input type="number" name="ano" id="nr_ano" placeholder="Ano" class="form-control" ' +
                 'value="" >' + 
             '</div>' + 
             '<a class="btn btn-danger" href="/cliente/deletar_veiculo/">Excluir</a>' +
         '</div><br>'
     }
+}
+
+function Salvar_veiculo(){
+    novo_veiculo = document.getElementById("inserir-veiculo")
+    atualiza_veiculo = document.getElementById("atualizar-veiculo")
+
+    if(atualiza_veiculo != null) {
+        id_veiculo = atualiza_veiculo.querySelectorAll("#id_veiculo")
+        nm_veiculo = atualiza_veiculo.querySelectorAll("#nm_veiculo")
+        nr_placa = atualiza_veiculo.querySelectorAll("#nr_placa")
+        nr_ano = atualiza_veiculo.querySelectorAll("#nr_ano")
+
+        data = {} // Criar um dicionario vazio
+        for(i=0; i < nr_placa.length; i++) {
+            /*Adiciona outro dicionario dentro ficando {0: {dados do veiclo}}
+            {0: {nm_veiculo = "kwid", nr_placa = 12346}
+            1: {outro veiculo} } */ 
+            data[i] = {
+                id_veiculo: id_veiculo[i].value,
+                nm_veiculo: nm_veiculo[i].value,
+                nr_placa: nr_placa[i].value,
+                nr_ano: nr_ano[i].value
+            };   
+        }
+
+        //Atualizando os veiculos
+        fetch("/cliente/atualizar_veiculo/", {
+            method: "POST",
+            headers: {
+                "X-CSRFToken": csrf_token 
+            },
+            body: JSON.stringify(data)
+        }).then(function(result) {
+            return result.json()
+        }).then(function(data) {
+            let popup = document.getElementById("popup");
+            popup.className = "popup show";
+            popup.innerHTML += data["INFO"]
+            setTimeout(function(){ 
+                popup.className = popup.className.replace("show", "");
+                popup.innerHTML = "" 
+            }, 2000);
+        })
+    }
+
+    if(novo_veiculo != null) {
+        //adicionando novos veiculos
+        nm_veiculo = novo_veiculo.querySelectorAll("#nm_veiculo")
+        nr_placa = novo_veiculo.querySelectorAll("#nr_placa")
+        nr_ano = novo_veiculo.querySelectorAll("#nr_ano")
+        cliente = document.getElementById("select-cliente").value
+
+        data = {id_pessoa: cliente} // Criar um dicionario vazio
+        for(i=0; i < nr_placa.length; i++) {
+            /*Adiciona outro dicionario dentro ficando {0: {dados do veiclo}}
+            {0: {nm_veiculo = "kwid", nr_placa = 12346}
+            1: {outro veiculo} } */ 
+            data[i] = {
+                nm_veiculo: nm_veiculo[i].value,
+                nr_placa: nr_placa[i].value,
+                nr_ano: nr_ano[i].value
+            };   
+        }
+
+        fetch("/cliente/inserir_veiculo/", {
+            method: "POST",
+            headers: {
+                "X-CSRFToken": csrf_token 
+            },
+            body: JSON.stringify(data)
+
+        }).then(function(result) {
+            return result.json()
+        }).then(function(data) {
+            let popup = document.getElementById("popup");
+            popup.className = "popup show";
+            popup.innerHTML += data["INFO"]
+            setTimeout(function(){ 
+                popup.className = popup.className.replace("show", "");
+                popup.innerHTML = "" 
+            }, 5000);
+        })
+    }
+
+
+   
 }
