@@ -1,4 +1,14 @@
 var csrf_token = document.querySelector("[name=csrfmiddlewaretoken]").value
+function menssege_info(messege) {
+    let popup = document.getElementById("popup");
+    popup.className = "popup show";
+    popup.innerHTML += messege["info"]
+    setTimeout(function(){ 
+        popup.className = popup.className.replace("show", "");
+        popup.innerHTML = "" 
+    }, 5000);
+}
+
 
 function novo_cadastro() {
     form_cadastro = document.querySelector(".novo-cadastro")
@@ -37,15 +47,9 @@ function novo_cadastro() {
         },
         body: JSON.stringify(data)
     } ).then(function(result) {
-        return result   .json()
+        return result.json()
     }).then(function(data) {
-        let popup = document.getElementById("popup");
-        popup.className = "popup show";
-        popup.innerHTML += data["INFO"]
-        setTimeout(function(){ 
-            popup.className = popup.className.replace("show", "");
-            popup.innerHTML = "" 
-        }, 5000);
+        menssege_info(data)
     })
 }
 
@@ -241,55 +245,43 @@ function Salvar_veiculo(){
         }).then(function(result) {
             return result.json()
         }).then(function(data) {
-            let popup = document.getElementById("popup");
-            popup.className = "popup show";
-            popup.innerHTML += data["INFO"]
-            setTimeout(function(){ 
-                popup.className = popup.className.replace("show", "");
-                popup.innerHTML = "" 
-            }, 2000);
+            if(data["INFO"] == "400") {
+                if(novo_veiculo != null) {
+                    //adicionando novos veiculos
+                    nm_veiculo = novo_veiculo.querySelectorAll("#nm_veiculo")
+                    nr_placa = novo_veiculo.querySelectorAll("#nr_placa")
+                    nr_ano = novo_veiculo.querySelectorAll("#nr_ano")
+                    cliente = document.getElementById("select-cliente").value
+            
+                    data = {id_pessoa: cliente} // Criar um dicionario vazio
+                    for(i=0; i < nr_placa.length; i++) {
+                        /*Adiciona outro dicionario dentro ficando {0: {dados do veiclo}}
+                        {0: {nm_veiculo = "kwid", nr_placa = 12346}
+                        1: {outro veiculo} } */ 
+                        data[i] = {
+                            nm_veiculo: nm_veiculo[i].value,
+                            nr_placa: nr_placa[i].value,
+                            nr_ano: nr_ano[i].value
+                        };   
+                    }
+            
+                    fetch("/cliente/inserir_veiculo/", {
+                        method: "POST",
+                        headers: {
+                            "X-CSRFToken": csrf_token 
+                        },
+                        body: JSON.stringify(data)
+            
+                    }).then(function(result) {
+                        return result.json()
+                    }).then(function(data) {
+                        menssege_info(data)
+                    })
+                }
+            }
+            else {
+                menssege_info(data)
+            }
         })
-    }
-
-    if(novo_veiculo != null) {
-        //adicionando novos veiculos
-        nm_veiculo = novo_veiculo.querySelectorAll("#nm_veiculo")
-        nr_placa = novo_veiculo.querySelectorAll("#nr_placa")
-        nr_ano = novo_veiculo.querySelectorAll("#nr_ano")
-        cliente = document.getElementById("select-cliente").value
-
-        data = {id_pessoa: cliente} // Criar um dicionario vazio
-        for(i=0; i < nr_placa.length; i++) {
-            /*Adiciona outro dicionario dentro ficando {0: {dados do veiclo}}
-            {0: {nm_veiculo = "kwid", nr_placa = 12346}
-            1: {outro veiculo} } */ 
-            data[i] = {
-                nm_veiculo: nm_veiculo[i].value,
-                nr_placa: nr_placa[i].value,
-                nr_ano: nr_ano[i].value
-            };   
-        }
-
-        fetch("/cliente/inserir_veiculo/", {
-            method: "POST",
-            headers: {
-                "X-CSRFToken": csrf_token 
-            },
-            body: JSON.stringify(data)
-
-        }).then(function(result) {
-            return result.json()
-        }).then(function(data) {
-            let popup = document.getElementById("popup");
-            popup.className = "popup show";
-            popup.innerHTML += data["INFO"]
-            setTimeout(function(){ 
-                popup.className = popup.className.replace("show", "");
-                popup.innerHTML = "" 
-            }, 5000);
-        })
-    }
-
-
-   
+    }  
 }

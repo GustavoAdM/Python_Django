@@ -6,7 +6,7 @@ from .models import Cliente, Veiculo
 from json import loads
 from django.urls import reverse
 from django.shortcuts import redirect
-
+from apps.cliente.messege_info import messege_approved, messege_error
 
 def cliente(request):
     # Inicio da view
@@ -85,10 +85,12 @@ def atualizar_veiculo(request):
         nome_veiculo = value['nm_veiculo']
         placa = value['nr_placa']
         ano = value['nr_ano']
-        Veiculo.objects.filter(id_veiculo=id_veiculo).update(
-            nm_veiculo=nome_veiculo, nr_placa=placa, nr_ano=ano)
-
-    return JsonResponse({'INFO': 'Veiculo atualizado'})
+        try:
+            Veiculo.objects.filter(id_veiculo=id_veiculo).update(
+                nm_veiculo=nome_veiculo, nr_placa=placa, nr_ano=ano)
+        except ValidationError as e:
+            return JsonResponse(messege_error(list(e.message_dict.values())[0]))
+    return JsonResponse(messege_approved('Veiculo atualizado'))
 
 
 def atualizar_pessoa(request, id):
@@ -132,6 +134,5 @@ def inserir_veiculo(request):
                 veiculo.full_clean()
                 veiculo.save()
             except ValidationError as e:
-                contexto = {}
-                return JsonResponse({'INFO': 'ERRO AO ATUALIZAR'})
-    return JsonResponse({'INFO': 'Veiculo inserido'})
+                return JsonResponse(messege_error(list(e.message_dict.values())[0]))
+    return JsonResponse(messege_approved('Veiculo inserido'))
