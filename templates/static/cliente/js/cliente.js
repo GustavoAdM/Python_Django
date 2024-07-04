@@ -1,4 +1,5 @@
 var csrf_token = document.querySelector("[name=csrfmiddlewaretoken]").value
+
 function menssege_info(messege) {
     let popup = document.getElementById("popup");
     popup.className = "popup show";
@@ -55,6 +56,7 @@ function novo_cadastro() {
 
 function add_carro(){
     container = document.getElementById("form-carro")
+
     html = '<br> <div class="row">' +
         '<div class="col-md"> <input type="text" name="carros" id="carros" placeholder="carro" class="form-control"> </div>' +
         '<div class="col-md"> <input type="text" name="placas" id="placas" placeholder="Placa" class="form-control"> </div>' +
@@ -100,7 +102,7 @@ function cliente_dados() {
             cliente = document.querySelector('.dados_cliente')
             cliente.innerHTML = ""
             
-            cliente.innerHTML += '<form action="/cliente/atualizar_pessoa/'+data["cliente"]['id_cliente']+'" class="atualizar_pessoa" method="POST">' +
+            cliente.innerHTML += '<form class="atualizar_pessoa" method="POST">' +
             '<input type="hidden" name="csrfmiddlewaretoken" value="'+csrf_token+'">' +
             '<div class="col-md">'+
                 '<p>Nome:</p>'+
@@ -121,9 +123,9 @@ function cliente_dados() {
                 '<p>CPF:</p>'+
                 '<input type="text" class="form-control" placeholder="___.___.___-__" name="cpf" id="cpf"'+
                     'value="'+data["cliente"]['fields']["nr_cpf"]+'">'+
-            '</div>'+
-            '<br><input type="submit" class="btn btn-success" value="Salvar Alteração"> ' + 
-            '</form>'
+            '</div>'+ 
+            '</form>' +
+            '<br><input type="submit" onclick="Atualizar_cliente()" class="btn btn-success" value="Atualizar Cliente"> ' 
             
             veiculo = document.getElementById("veiculo")
             veiculo.innerHTML = ""
@@ -245,43 +247,74 @@ function Salvar_veiculo(){
         }).then(function(result) {
             return result.json()
         }).then(function(data) {
-            if(data["INFO"] == "400") {
-                if(novo_veiculo != null) {
-                    //adicionando novos veiculos
-                    nm_veiculo = novo_veiculo.querySelectorAll("#nm_veiculo")
-                    nr_placa = novo_veiculo.querySelectorAll("#nr_placa")
-                    nr_ano = novo_veiculo.querySelectorAll("#nr_ano")
-                    cliente = document.getElementById("select-cliente").value
-            
-                    data = {id_pessoa: cliente} // Criar um dicionario vazio
-                    for(i=0; i < nr_placa.length; i++) {
-                        /*Adiciona outro dicionario dentro ficando {0: {dados do veiclo}}
-                        {0: {nm_veiculo = "kwid", nr_placa = 12346}
-                        1: {outro veiculo} } */ 
-                        data[i] = {
-                            nm_veiculo: nm_veiculo[i].value,
-                            nr_placa: nr_placa[i].value,
-                            nr_ano: nr_ano[i].value
-                        };   
-                    }
-            
-                    fetch("/cliente/inserir_veiculo/", {
-                        method: "POST",
-                        headers: {
-                            "X-CSRFToken": csrf_token 
-                        },
-                        body: JSON.stringify(data)
-            
-                    }).then(function(result) {
-                        return result.json()
-                    }).then(function(data) {
-                        menssege_info(data)
-                    })
+            if(data["status"] == "200" && novo_veiculo != null) {
+                //adicionando novos veiculos
+                nm_veiculo = novo_veiculo.querySelectorAll("#nm_veiculo")
+                nr_placa = novo_veiculo.querySelectorAll("#nr_placa")
+                nr_ano = novo_veiculo.querySelectorAll("#nr_ano")
+                cliente = document.getElementById("select-cliente").value
+        
+                data = {id_pessoa: cliente} // Criar um dicionario vazio
+                for(i=0; i < nr_placa.length; i++) {
+                    /*Adiciona outro dicionario dentro ficando {0: {dados do veiclo}}
+                    {0: {nm_veiculo = "kwid", nr_placa = 12346}
+                    1: {outro veiculo} } */ 
+                    data[i] = {
+                        nm_veiculo: nm_veiculo[i].value,
+                        nr_placa: nr_placa[i].value,
+                        nr_ano: nr_ano[i].value
+                    };   
                 }
+        
+                fetch("/cliente/inserir_veiculo/", {
+                    method: "POST",
+                    headers: {
+                        "X-CSRFToken": csrf_token 
+                    },
+                    body: JSON.stringify(data)
+        
+                }).then(function(result) {
+                    return result.json()
+                }).then(function(data) {
+                    menssege_info(data)
+                })   
+            }
+            else if (data["status"] == "200"){
+                menssege_info(data)
             }
             else {
                 menssege_info(data)
             }
         })
     }  
+}
+
+function Atualizar_cliente() {
+    form_cliente = document.querySelector(".atualizar_pessoa")
+
+    cliente = document.getElementById("select-cliente").value
+    nome_cliente = form_cliente.querySelector("#nome").value
+    sobrenome_cliente = form_cliente.querySelector("#sobrenome").value
+    email_cliente = form_cliente.querySelector("#email").value
+    cpf_cliente = form_cliente.querySelector("#cpf").value
+
+    data = {
+        id_cliente: cliente,
+        nome: nome_cliente,
+        sobrenome: sobrenome_cliente,
+        email: email_cliente,
+        cpf: cpf_cliente
+    }
+
+    fetch('/cliente/atualizar_pessoa/', {
+        method: "POST",
+        headers: {
+            "X-CSRFToken": csrf_token 
+        },
+        body: JSON.stringify(data)
+    }).then(function(result) {
+        return result.json()
+    }).then(function(data){
+        menssege_info(data)
+    })
 }

@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.http import JsonResponse, HttpResponse
 from django.core.exceptions import ValidationError
+from django.db.utils import IntegrityError
 from django.core.serializers import serialize
 from .models import Cliente, Veiculo
 from json import loads
@@ -16,7 +17,6 @@ def cliente(request):
         return render(request, 'cliente.html', {'clientes': list_cliente})
     elif request.method == "POST":
         body = loads(request.body)
-
         try:
             cliente = Cliente(
                 nm_pessoa=body['nome'],
@@ -41,11 +41,11 @@ def cliente(request):
 
         except ValidationError as e:
             if 'nr_cpf' in e.message_dict:
-                return JsonResponse({'INFO': 'O CPF informado já está cadastrado em nosso sistema.'}) 
+                return JsonResponse(messege_error(list(e.message_dict.values())[0]))
             elif 'nr_placa' in e.message_dict:
                 Cliente.objects.filter(id_pessoa=cliente.id_pessoa).delete()
-                return JsonResponse({'INFO': 'A Placa informado já está cadastrado em nosso sistema.'})
-        return render(request, 'cliente.html', JsonResponse({'INFO': 'Cadastro Salvo'}))    
+                return JsonResponse(messege_error(list(e.message_dict.values())[0]))
+        return JsonResponse({'INFO': 'Cadastro Salvo'})    
         #return render(request, 'cliente.html', {'clientes': list_cliente})
 
 
@@ -93,17 +93,16 @@ def atualizar_veiculo(request):
     return JsonResponse(messege_approved('Veiculo atualizado'))
 
 
-def atualizar_pessoa(request, id):
-    # Coletando dados do cliente
-    nome_pessoa = request.POST.get('nome')
-    sobrenome_pessoa = request.POST.get('sobrenome')
-    email_pessoa = request.POST.get('email')
-    cpf_pessoa = request.POST.get('cpf')
+def atualizar_pessoa(request):
+    body = loads(request.body)
 
     # Filtrando o cliente pelo id_pessoa(PK) e atualizando dados
-    Cliente.objects.filter(id_pessoa=id).update(nm_pessoa=nome_pessoa, nm_sbrnome=sobrenome_pessoa,
-                                                ds_email=email_pessoa, nr_cpf=cpf_pessoa)
-    return HttpResponse("Cliente atualizado")
+    try:
+        Cliente.objects.filter(id_pessoa=body['id_cliente']).update(nm_pessoa=body['nome'], nm_sbrnome=body['sobrenome'],
+                                                    ds_email=body['email'], nr_cpf=body['cpf'])
+    except IntegrityError as e:
+        return JsonResponse(messege_error(str(e.__cause__)[100:], 'i'))
+    return JsonResponse(messege_approved('Atualizado'))
 
 
 def deletar_veiculo(request, id):

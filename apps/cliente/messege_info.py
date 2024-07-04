@@ -1,7 +1,7 @@
-def messege_error(mensagem:str):
+def messege_error(mensagem:str, type='v'):
     messege = {
         'status': 400,
-        'info': mensagem[0]
+        'info': mensagem[0] if type == 'v' else mensagem
     }
     return messege
 
