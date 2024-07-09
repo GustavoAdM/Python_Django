@@ -90,6 +90,8 @@ def atualizar_veiculo(request):
                 nm_veiculo=nome_veiculo, nr_placa=placa, nr_ano=ano)
         except ValidationError as e:
             return JsonResponse(messege_error(list(e.message_dict.values())[0]))
+        except IntegrityError as b:
+            return JsonResponse(messege_error(str(b.__cause__)[100:], 'i'))
     return JsonResponse(messege_approved('Veiculo atualizado'))
 
 
